@@ -1,25 +1,31 @@
 // @ts-check
 
 const socket = new WebSocket("ws://localhost:8080/");
+let isFirstTime = true;
 
 /**
  * Renders the all the messages in the UI when a message is recieved
- * 
- * @param {{data:string; [key: string]: any}} message 
+ *
+ * @param {{data:string; [key: string]: any}} message
  * @returns {void};
  */
 socket.onmessage = (message) => {
   const { data } = message;
   const messages = JSON.parse(data);
-
-  // Renders the messages in the UI
   const ul = document.querySelector("ul");
-  ul.innerHTML = "";
-  messages.forEach((item) => {
+
+  if (!isFirstTime) {
     const liElement = document.createElement("li");
-    liElement.innerText = item;
+    liElement.innerText = messages[messages.length - 1];
     ul.appendChild(liElement);
-  });
+  } else {
+    messages.forEach((message) => {
+      const liElement = document.createElement("li");
+      liElement.innerText = message;
+      ul.appendChild(liElement);
+    });
+    isFirstTime = false;
+  }
 };
 
 // Executed when the form is submitted
