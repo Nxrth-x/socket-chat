@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <meta
+      name="description"
+      content="Socket chat is a lightweight realtime chat app"
+    />
+    <link rel="stylesheet" href="index.css" />
+  </head>
+  <body>
+    <div>
+      <form>
+        <label>
+          Type in your nickname
+          <input type="text" />
+        </label>
+        <button>Login</button>
+      </form>
+    </div>
+  </body>
+  <script>
+    document.querySelector("form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const nickname = document.querySelector("input").value;
+
+      const response = await fetch("http://localhost:3333/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: nickname,
+        }),
+      });
+
+      if (response.status === 200) {
+        sessionStorage.setItem("_username", nickname);
+        window.location.href = "http://localhost:3333/chat.html";
+      }
+    });
+  </script>
+</html>

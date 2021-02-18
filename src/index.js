@@ -1,31 +1,22 @@
 const WebSocket = require("ws");
 const path = require("path");
-const http = require("http");
 const fs = require("fs");
+const express = require("express");
+const { router } = require("./routes");
 
-// HTTP server to send static files
-http
-  .createServer((request, response) => {
-    fs.readFile(path.join(__dirname, "static", request.url), (error, data) => {
-      if (error) {
-        fs.readFile(path.join(__dirname, "static", "404.html"), (_, data) => {
-          response.writeHead(404);
-          response.end(data);
-        });
-      } else {
-        response.writeHead(200);
-        response.end(data);
-      }
-    });
-  })
-  .listen(8000);
+const messages = [];
+
+const app = express();
+app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
+app.use(router);
+
+app.listen(3333, () => console.log("Server is running on port 3333."));
 
 // Creates a new websocket server
 const server = new WebSocket.Server({
   port: 8080,
 });
-
-const messages = [];
 
 server.on("connection", (socket) => {
   console.log("A new client has connected");
@@ -34,6 +25,7 @@ server.on("connection", (socket) => {
   socket.send(JSON.stringify(messages));
 
   socket.on("message", (message) => {
+    message = JSON.parse(message);
     messages.push(message);
     server.clients.forEach((socket) => socket.send(JSON.stringify(messages)));
   });
